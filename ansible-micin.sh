@@ -9,28 +9,38 @@ ${bold}Usage${normal}:
   ansible-micin command variable_key [value] vars_file.yml [vault_file]
  
 ${bold}Available Commands${normal}:
-  show-value
-  set-value
-  decrypt-value
-  encrypt-value
+  show
+  set
+  vault-show
+  vault-set
+  decrypt
+  encrypt
 EOH
 }
 
 function main() {
   case $1 in
-    show-value)
-      show-value $*
+    show)
+      show $2 $3
       ;;
 
-    set-value)
+    set)
       set-value $*
       ;;
 
-    decrypt-value)
-      decrypt-value $*
+    decrypt)
+      decrypt $*
       ;;
 
-    encrypt-value)
+    encrypt)
+      encrypt $*
+      ;;
+
+    vault-show)
+      vault-show $2 $3 $4
+      ;;
+
+    vault-set)
       encrypt-value $*
       ;;
 
@@ -40,19 +50,39 @@ function main() {
   esac
 }
 
-function show-value() {
-  echo 'Show some value'
+function show() {
+  KEY=$1
+  FILENAME=$2
+  yq r $FILENAME $KEY
 }
 
-function set-value() {
+function vault-show() {
+  KEY=$1
+  FILENAME=$2
+  VAULT_FILE=$3
+  TMPFILE=$(mktemp)
+
+  show $KEY $FILENAME > $TMPFILE
+  ansible-vault decrypt --vault-password-file $VAULT_FILE $TMPFILE > /dev/null
+  
+  PLAINTEXT=$(cat $TMPFILE)
+  echo "$PLAINTEXT"
+  rm $TMPFILE
+}
+
+function set() {
   echo 'Set some value'
 }
 
-function decrypt-value() {
+function decrypt() {
   echo 'Decrypt some value'
 }
 
-function encrypt-value() {
+function encrypt() {
+  echo 'Encrypt some value'
+}
+
+function vault-set() {
   echo 'Encrypt some value'
 }
 
